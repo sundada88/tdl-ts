@@ -1,0 +1,1 @@
+type MyReturnType<T extends (...args: any) => unknown> = T extends (...args) => infer ReturnType ? ReturnType : never
