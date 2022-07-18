@@ -1,0 +1,1 @@
+type Pop<T extends any[]> = T extends [...infer first, unknown] ? first : never
