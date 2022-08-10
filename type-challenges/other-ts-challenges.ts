@@ -61,7 +61,11 @@
   //    2. ReturnType<(() => a & () => b)> === b
   //    3. 将 b 从 a | b中去除，然后递归
   {
-    type UnionToIntersection<U> = (U extends U ? (x: U) => unknown : never) extends (x: infer R) => unknown ? R : never
+    // type UnionToIntersection<U> = (U extends U ? (x: U) => unknown : never) extends (x: infer R) => unknown ? R : never
+
+    // type UnionToTuple<T> = UnionToIntersection<T extends any ? () => T : never> extends () => infer ReturnType ? [...UnionToTuple<Exclude<T, ReturnType>>, ReturnType] : []
+
+    type UnionToIntersection<T> = (T extends T ? (x: T) => unknown) extends (x: infer R) => unknown ? R : never
 
     type UnionToTuple<T> = UnionToIntersection<T extends any ? () => T : never> extends () => infer ReturnType ? [...UnionToTuple<Exclude<T, ReturnType>>, ReturnType] : []
 
