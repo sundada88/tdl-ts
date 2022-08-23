@@ -1,0 +1,1 @@
+type DropChar<S extends string, C extends string> = S extends `${infer Fir}${C}${infer Res}` ? DropChar<`${Fir}${Res}`, C> : S
