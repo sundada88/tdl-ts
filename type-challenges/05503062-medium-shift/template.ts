@@ -1,0 +1,1 @@
+type Shift<T> = T extends [infer Fir, ...infer Rest] ? Rest : never
