@@ -11,7 +11,8 @@
   // <------------------------------------------------>
   // 2. TupleToNestedObject<[a, b, c], string> => {a: { b: {d: string}}}
   type Type = number | string | symbol
-  type TupleToNestedObject<Tuple extends unknown[], Value> = Tuple extends [infer First, ...infer Rest] ? { [key in First as key extends keyof any ? key : never]: TupleToNestedObject<Rest, Value> } : Value
+  // type TupleToNestedObject<Tuple extends unknown[], Value> = Tuple extends [infer First, ...infer Rest] ? { [key in First as key extends keyof any ? key : never]: TupleToNestedObject<Rest, Value> } : Value
+  type TupleToNestedObject<T extends unknown[], V> = T extends [infer F, ...infer R] ? {[K in F as K extends keyof any ? K : never]: TupleToNestedObject<R, V>} : V
   type aa = TupleToNestedObject<[1, 2, 3], number>
   type aaa = TupleToNestedObject<[1, 2, 3], 'aaa'>
   type aaaa = TupleToNestedObject<[1, 2, 3], undefined>
@@ -20,12 +21,16 @@
   // <------------------------------------------------>
   // 3. PartialObjectPropByKeys<{a: 1, b: 2, c: 3}, 'a'|'b'> => {readonly a: 1, readonly b: 2, c: 3}
   type ObjType = { a: 1, b: 2, c: 3 }
-  type PartialObjectPropByKeys<Obj extends Record<string, any>, Key extends keyof any> = {
+  type MergeObj<T> = {
+    [K in keyof T]: T[K]
+  }
+  type PartialObjectPropByKeys<Obj extends Record<string, any>, Key extends keyof any> = MergeObj<{
     readonly [key in keyof Obj as key extends Key ? key : never]: Obj[key]
-  } & {
+    } & {
       [key in keyof Obj as key extends Key ? never : key]: Obj[key]
     }
-  type PartialObjectPropByKeys1 = PartialObjectPropByKeys<ObjType, 'a' | 'b'>
+  >
+    type PartialObjectPropByKeys1 = PartialObjectPropByKeys<ObjType, 'a' | 'b'>
 
   // <------------------------------------------------>
   // 4. UnionToTuple<{a: 1} | {b: 2}> => {a: 1} & {b: 2}
@@ -85,4 +90,21 @@
 
     type a = ParseQueryString<'a=1&b=2&c=3&d=4'>
   }
+
+  // <------------------------------------------------>
+  // 8. [1, [[2, 3]]] => [1, [2, 3]]
+  type FlattenOnce<T extends unknown[]> = T extends [infer F, ...infer R] ? [...F extends [...infer K] ? K : [F], ...FlattenOnce<R>] : T
+  {
+    type a = FlattenOnce<[1, [[2, 3]]]>
+  }
+
+  // <------------------------------------------------>
+  // 9. 根据数量来决定 flatten 几层 
+  type FlattenDepth<T extends unknown[], Time extends number = 1, Res extends  unknown[] = []> = Res['length'] extends Time ? T : T extends FlattenOnce<T> ? T : FlattenDepth<FlattenOnce<T>, Time, [unknown, ...Res]>
+
+  {
+    type b = FlattenDepth<[1, 2, [3, 4], [[[5]]]], 2>
+  }
 }
+
+
